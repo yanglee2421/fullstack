@@ -15,7 +15,7 @@ const factory = createFactory<Env>({
 
 const helloHanldes = factory.createHandlers(async (c) => {
   const postgres = container.cradle.pgsql.client;
-  const rows = await postgres.select().from(schema.users);
+  const rows = await postgres.select().from(schema.overtimes);
 
   return c.json({
     message: "Hello Next.js!",
