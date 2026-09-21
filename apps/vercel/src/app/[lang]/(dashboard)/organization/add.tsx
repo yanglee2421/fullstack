@@ -27,12 +27,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { toast } from "@/components/ui/toast";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ArchiveRestore, ChevronDownIcon, Loader, Save } from "lucide-react";
 import React from "react";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const schema = z.object({
@@ -57,11 +57,11 @@ export const Add = (props: AddProps) => {
       await props.action(value);
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.add({ description: error.message, type: "error" });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["overtimes"] });
-      toast.success("Successfully!");
+      toast.add({ description: "Successfully!", type: "success" });
     },
   });
 
@@ -111,20 +111,22 @@ export const Add = (props: AddProps) => {
                   <Field data-invalid={isInvalid}>
                     <FieldLabel>Date</FieldLabel>
                     <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          data-empty={!date}
-                          className="data-[empty=true]:text-muted-foreground justify-between text-left font-normal"
-                        >
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <ChevronDownIcon />
-                        </Button>
-                      </PopoverTrigger>
+                      <PopoverTrigger
+                        render={
+                          <Button
+                            variant="outline"
+                            data-empty={!date}
+                            className="data-[empty=true]:text-muted-foreground justify-between text-left font-normal"
+                          >
+                            {date ? (
+                              format(date, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <ChevronDownIcon />
+                          </Button>
+                        }
+                      />
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"

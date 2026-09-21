@@ -1,13 +1,15 @@
 import { QueryProvider } from "@/components/query/query-provider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Figtree } from "next/font/google";
+// import { IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
+// const ibmPlexSans = IBM_Plex_Sans({
+//   subsets: ["latin"],
+//   variable: "--font-sans",
+// });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,7 +25,7 @@ export default async function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("font-sans", figtree.variable)}
+      // className={cn("font-sans", ibmPlexSans.variable)}
     >
       <body>
         <QueryProvider>
