@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -10,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useEffectReady } from "@/hooks/use-effect-ready";
 import { useQuery } from "@tanstack/react-query";
 import {
   createColumnHelper,
@@ -20,14 +22,58 @@ import {
 import { cn } from "cn";
 import { format } from "date-fns";
 import type { schema } from "db/postgres";
-import { Loader, RefreshCcw, Square, SquareCheckBig } from "lucide-react";
+import {
+  Loader,
+  RefreshCcw,
+  Square,
+  SquareCheck,
+  SquareCheckBig,
+  Trash,
+} from "lucide-react";
 import React from "react";
 
 type Row = typeof schema.overtimes.$inferSelect;
 
 const columnHelper = createColumnHelper<Row>();
 const columns = [
-  columnHelper.accessor("id", {}),
+  columnHelper.display({
+    id: "selection",
+    header: ({ table }) => {
+      return (
+        <Checkbox
+          checked={table.getIsAllRowsSelected()}
+          indeterminate={table.getIsSomeRowsSelected()}
+          onCheckedChange={(c) => {
+            table.toggleAllPageRowsSelected(c);
+          }}
+        />
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={row.getToggleSelectedHandler()}
+        />
+      );
+    },
+    footer: ({ table }) => {
+      return (
+        <Checkbox
+          checked={table.getIsAllRowsSelected()}
+          indeterminate={table.getIsSomeRowsSelected()}
+          onCheckedChange={(c) => {
+            table.toggleAllPageRowsSelected(c);
+          }}
+        />
+      );
+    },
+  }),
+  columnHelper.accessor("id", {
+    cell: ({ getValue }) => {
+      return <>#{getValue()}</>;
+    },
+  }),
   columnHelper.accessor("date", {
     cell: ({ getValue }) => {
       return format(getValue(), "yyyy-MM-dd");
@@ -37,7 +83,23 @@ const columns = [
   columnHelper.accessor("note", {}),
   columnHelper.accessor("cashed", {
     cell: ({ getValue }) => {
-      return getValue() ? <SquareCheckBig /> : <Square />;
+      return getValue() ? <SquareCheck /> : <Square />;
+    },
+  }),
+  columnHelper.display({
+    id: "actions",
+    header: "action",
+    cell: () => {
+      return (
+        <>
+          <Button size={"icon"} variant={"ghost"}>
+            <SquareCheckBig />
+          </Button>
+          <Button size={"icon"} variant={"ghost"}>
+            <Trash />
+          </Button>
+        </>
+      );
     },
   }),
 ];
@@ -54,6 +116,8 @@ interface OvertimesProps {
 export const Overtimes = (props: OvertimesProps) => {
   "use no memo";
 
+  const enabled = useEffectReady();
+
   const query = useQuery({
     queryKey: ["overtimes"],
     queryFn: async () => {
@@ -61,6 +125,7 @@ export const Overtimes = (props: OvertimesProps) => {
 
       return data;
     },
+    enabled,
   });
 
   const data = React.useMemo(() => query.data?.rows || [], [query.data]);
