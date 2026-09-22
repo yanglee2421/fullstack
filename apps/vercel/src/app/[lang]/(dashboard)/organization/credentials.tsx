@@ -10,11 +10,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/toast";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader, Save } from "lucide-react";
 import React from "react";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const schema = z.object({
@@ -37,11 +37,11 @@ export const Credentials = (props: CredentialsProps) => {
       await saveAction(accessToken);
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.add({ type: "error", description: error.message });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["overtimes"] });
-      toast.success("Successfully!");
+      toast.add({ type: "success", description: "Successfully!" });
     },
   });
 
