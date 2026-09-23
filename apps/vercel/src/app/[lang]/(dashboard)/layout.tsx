@@ -15,9 +15,18 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import React from "react";
 
-export default function Page(props: React.PropsWithChildren) {
+export default async function Page(props: React.PropsWithChildren) {
+  const cookie = await cookies();
+  const accessToken = cookie.get("accessToken")?.value;
+
+  if (!accessToken) {
+    redirect("/login");
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
