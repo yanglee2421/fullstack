@@ -1,6 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
-import { ScrollDivider } from "@/components/scroll-divider";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -56,7 +55,7 @@ export default async function Page(props: React.PropsWithChildren) {
               <ModeToggle />
             </div>
           </header>
-          <ScrollDivider />
+          <Separator />
         </div>
         {props.children}
       </SidebarInset>

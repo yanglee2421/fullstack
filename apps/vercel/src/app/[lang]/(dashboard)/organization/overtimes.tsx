@@ -4,6 +4,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Field, FieldLabel } from "@/components/ui/field";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
   Table,
   TableBody,
   TableCell,
@@ -92,12 +121,58 @@ const columns = [
     cell: () => {
       return (
         <>
-          <Button size={"icon"} variant={"ghost"}>
-            <SquareCheckBig />
-          </Button>
-          <Button size={"icon"} variant={"ghost"}>
-            <Trash />
-          </Button>
+          <Dialog>
+            <DialogTrigger
+              render={
+                <Button size={"icon"} variant={"ghost"}>
+                  <SquareCheckBig />
+                </Button>
+              }
+            />
+            <DialogContent className={"gap-0"}>
+              <DialogHeader>
+                <DialogTitle>Warnning</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <p className="mb-2">
+                Are you sure you want to update this record?
+              </p>
+              <DialogFooter>
+                <Button>Confirm</Button>
+                <DialogClose
+                  render={<Button variant={"secondary"}>Cancel</Button>}
+                />
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog>
+            <DialogTrigger
+              render={
+                <Button size={"icon"} variant={"ghost"}>
+                  <Trash />
+                </Button>
+              }
+            />
+            <DialogContent className={"gap-0"}>
+              <DialogHeader>
+                <DialogTitle>Warnning</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <p className="mb-2">
+                Are you sure you want to delete this record?
+              </p>
+              <DialogFooter>
+                <Button>Confirm</Button>
+                <DialogClose
+                  render={<Button variant={"secondary"}>Cancel</Button>}
+                />
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </>
       );
     },
@@ -187,7 +262,7 @@ export const Overtimes = (props: OvertimesProps) => {
   };
 
   return (
-    <Card>
+    <Card className="">
       <CardHeader>
         <CardTitle>Overtimes</CardTitle>
         <CardAction>
@@ -203,25 +278,73 @@ export const Overtimes = (props: OvertimesProps) => {
           </Button>
         </CardAction>
       </CardHeader>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((hg) => {
-            return (
-              <TableRow key={hg.id}>
-                {hg.headers.map((h) => {
-                  return (
-                    <TableHead key={h.id}>
-                      {h.isPlaceholder ||
-                        flexRender(h.column.columnDef.header, h.getContext())}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
-        </TableHeader>
-        <TableBody>{renderBody()}</TableBody>
-      </Table>
+      <div>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((hg) => {
+              return (
+                <TableRow key={hg.id}>
+                  {hg.headers.map((h) => {
+                    return (
+                      <TableHead key={h.id}>
+                        {h.isPlaceholder ||
+                          flexRender(h.column.columnDef.header, h.getContext())}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
+          </TableHeader>
+          <TableBody>{renderBody()}</TableBody>
+        </Table>
+        <Separator />
+      </div>
+      <div className="flex gap-2 px-2">
+        <div className="mx-auto"></div>
+        <Field orientation="horizontal" className="w-fit">
+          <FieldLabel htmlFor="select-rows-per-page">Rows per page</FieldLabel>
+          <Select defaultValue="25">
+            <SelectTrigger className="w-20" id="select-rows-per-page">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="start">
+              <SelectGroup>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
+        <div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive>
+                  2
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">3</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </div>
     </Card>
   );
 };

@@ -145,7 +145,7 @@ const data = {
     },
     {
       name: "Sales & Marketing",
-      url: "#",
+      url: "/",
       icon: <PieChartIcon />,
     },
     {

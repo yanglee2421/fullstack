@@ -2,7 +2,7 @@
 
 import { container } from "@/ioc";
 import { schema } from "db/postgres";
-import { eq, count as sqlCount } from "drizzle-orm";
+import { and, eq, count as sqlCount } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -53,6 +53,67 @@ export const addAction = async (value: AddActionInput) => {
     note: value.note,
     credentialId: credential.id,
   });
+
+  await setAccessCookie(accessToken);
+  revalidatePath("/");
+};
+
+export const deleteAction = async (id: number) => {
+  const cookie = await cookies();
+  const accessToken = cookie.get("accessToken")?.value || "";
+
+  if (!accessToken) {
+    throw new Error("Access Token is required!");
+  }
+
+  const [credential] = await postgres
+    .select()
+    .from(schema.credentials)
+    .where(eq(schema.credentials.accessToken, accessToken));
+
+  if (!credential) {
+    throw new Error("Invalid access token");
+  }
+
+  await postgres
+    .delete(schema.overtimes)
+    .where(
+      and(
+        eq(schema.overtimes.credentialId, credential.id),
+        eq(schema.overtimes.id, id),
+      ),
+    );
+
+  await setAccessCookie(accessToken);
+  revalidatePath("/");
+};
+
+export const updateAction = async (id: number) => {
+  const cookie = await cookies();
+  const accessToken = cookie.get("accessToken")?.value || "";
+
+  if (!accessToken) {
+    throw new Error("Access Token is required!");
+  }
+
+  const [credential] = await postgres
+    .select()
+    .from(schema.credentials)
+    .where(eq(schema.credentials.accessToken, accessToken));
+
+  if (!credential) {
+    throw new Error("Invalid access token");
+  }
+
+  await postgres
+    .update(schema.overtimes)
+    .set({ cashed: true })
+    .where(
+      and(
+        eq(schema.overtimes.credentialId, credential.id),
+        eq(schema.overtimes.id, id),
+      ),
+    );
 
   await setAccessCookie(accessToken);
   revalidatePath("/");
