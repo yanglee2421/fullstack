@@ -1,5 +1,3 @@
-import { cn } from "cn";
-
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -9,6 +7,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { cn } from "cn";
 import Link from "next/link";
 import { LoginDialog } from "./login-dialog";
 import { DialogTrigger } from "./ui/dialog";
@@ -29,20 +28,18 @@ export function SignupForm({
         <Field>
           <FieldLabel htmlFor="name">Full Name</FieldLabel>
           <Input
-            id="name"
+            readOnly
             type="text"
             placeholder="John Doe"
-            required
             className="bg-background"
           />
         </Field>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
-            id="email"
+            readOnly
             type="email"
             placeholder="m@example.com"
-            required
             className="bg-background"
           />
           <FieldDescription>
@@ -52,24 +49,14 @@ export function SignupForm({
         </Field>
         <Field>
           <FieldLabel htmlFor="password">Password</FieldLabel>
-          <Input
-            id="password"
-            type="password"
-            required
-            className="bg-background"
-          />
+          <Input readOnly type="password" className="bg-background" />
           <FieldDescription>
             Must be at least 8 characters long.
           </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
-          <Input
-            id="confirm-password"
-            type="password"
-            required
-            className="bg-background"
-          />
+          <Input readOnly type="password" className="bg-background" />
           <FieldDescription>Please confirm your password.</FieldDescription>
         </Field>
         <Field>

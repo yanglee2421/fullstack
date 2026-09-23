@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { saveAction } from "@/server/auth";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CircleX, Loader, Save } from "lucide-react";
+import { CircleX, Loader, LogIn, Shuffle, X } from "lucide-react";
 import React from "react";
 import { z } from "zod";
 import { ButtonGroup } from "./ui/button-group";
@@ -17,6 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "./ui/input-group";
 import { toast } from "./ui/toast";
 
 const schema = z.object({
@@ -58,9 +63,9 @@ export const LoginDialog = (props: React.PropsWithChildren) => {
       {props.children}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Share link</DialogTitle>
+          <DialogTitle>Wellcome to Acme Inc.</DialogTitle>
           <DialogDescription>
-            Anyone who has this link will be able to view this.
+            Enter any password to log in to the application.
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-2">
@@ -85,16 +90,29 @@ export const LoginDialog = (props: React.PropsWithChildren) => {
                   return (
                     <Field data-invalid={isInvalid}>
                       <ButtonGroup className="w-full">
-                        <Input
-                          value={field.state.value}
-                          onChange={(e) => {
-                            field.handleChange(e.target.value);
-                          }}
-                          onBlur={field.handleBlur}
-                          aria-invalid={isInvalid}
-                          name={field.name}
-                          type="text"
-                        />
+                        <InputGroup>
+                          <InputGroupInput
+                            value={field.state.value}
+                            onChange={(e) => {
+                              field.handleChange(e.target.value);
+                            }}
+                            onBlur={field.handleBlur}
+                            aria-invalid={isInvalid}
+                            name={field.name}
+                            type="text"
+                          />
+                          {!!field.state.value && (
+                            <InputGroupAddon align="inline-end">
+                              <InputGroupButton
+                                onClick={() => {
+                                  field.setValue("", { dontValidate: true });
+                                }}
+                              >
+                                <X />
+                              </InputGroupButton>
+                            </InputGroupAddon>
+                          )}
+                        </InputGroup>
                         <Button
                           onClick={() => {
                             form.setFieldValue(
@@ -105,7 +123,8 @@ export const LoginDialog = (props: React.PropsWithChildren) => {
                           type="button"
                           variant="outline"
                         >
-                          generate
+                          <Shuffle />
+                          Generate
                         </Button>
                       </ButtonGroup>
                       {isInvalid && (
@@ -122,7 +141,7 @@ export const LoginDialog = (props: React.PropsWithChildren) => {
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" form={formId} disabled={!canSubmit}>
-                {isSubmitting ? <Loader className="animate-spin" /> : <Save />}
+                {isSubmitting ? <Loader className="animate-spin" /> : <LogIn />}
                 Confirm
               </Button>
             )}
