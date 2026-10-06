@@ -28,6 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/toast";
+import { addAction } from "@/server/auth";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -43,18 +44,14 @@ const schema = z.object({
 
 type Values = z.infer<typeof schema>;
 
-interface AddProps {
-  action: (value: Values) => Promise<void>;
-}
-
-export const Add = (props: AddProps) => {
+export const Add = () => {
   const formId = React.useId();
 
   const queryClient = useQueryClient();
 
   const submit = useMutation({
     mutationFn: async (value: Values) => {
-      await props.action(value);
+      await addAction(value);
     },
     onError: (error) => {
       toast.add({ description: error.message, type: "error" });

@@ -2,7 +2,7 @@
 
 import { container } from "@/ioc";
 import { schema } from "db/postgres";
-import { and, eq, count as sqlCount } from "drizzle-orm";
+import { and, desc, eq, count as sqlCount } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -134,7 +134,8 @@ export const queryAction = async () => {
   const query = postgres
     .select()
     .from(schema.overtimes)
-    .where(eq(schema.overtimes.credentialId, credential.id));
+    .where(eq(schema.overtimes.credentialId, credential.id))
+    .orderBy(desc(schema.overtimes.date));
   const [{ count }] = await postgres
     .select({ count: sqlCount() })
     .from(query.as("rows"));
