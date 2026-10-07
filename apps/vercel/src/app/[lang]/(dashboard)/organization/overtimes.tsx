@@ -40,8 +40,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from "@/components/ui/toast";
 import { useEffectReady } from "@/hooks/use-effect-ready";
-import { useQuery } from "@tanstack/react-query";
+import { deleteAction, queryAction, updateAction } from "@/server/auth";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createColumnHelper,
   flexRender,
@@ -52,14 +54,42 @@ import { cn } from "cn";
 import { format } from "date-fns";
 import type { schema } from "db/postgres";
 import {
+  Check,
   Loader,
   RefreshCcw,
   Square,
   SquareCheck,
   SquareCheckBig,
   Trash,
+  X,
 } from "lucide-react";
 import React from "react";
+
+const useDeleteOvertime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await deleteAction(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["overtimes"] });
+    },
+  });
+};
+
+const useUpdateOvertime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await updateAction(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["overtimes"] });
+    },
+  });
+};
 
 type Row = typeof schema.overtimes.$inferSelect;
 
@@ -118,77 +148,126 @@ const columns = [
   columnHelper.display({
     id: "actions",
     header: "action",
-    cell: () => {
-      return (
-        <>
-          <Dialog>
-            <DialogTrigger
-              render={
-                <Button size={"icon"} variant={"ghost"}>
-                  <SquareCheckBig />
-                </Button>
-              }
-            />
-            <DialogContent className={"gap-0"}>
-              <DialogHeader>
-                <DialogTitle>Warnning</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone.
-                </DialogDescription>
-              </DialogHeader>
-              <p className="mb-2">
-                Are you sure you want to update this record?
-              </p>
-              <DialogFooter>
-                <Button>Confirm</Button>
-                <DialogClose
-                  render={<Button variant={"secondary"}>Cancel</Button>}
-                />
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger
-              render={
-                <Button size={"icon"} variant={"ghost"}>
-                  <Trash />
-                </Button>
-              }
-            />
-            <DialogContent className={"gap-0"}>
-              <DialogHeader>
-                <DialogTitle>Warnning</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone.
-                </DialogDescription>
-              </DialogHeader>
-              <p className="mb-2">
-                Are you sure you want to delete this record?
-              </p>
-              <DialogFooter>
-                <Button>Confirm</Button>
-                <DialogClose
-                  render={<Button variant={"secondary"}>Cancel</Button>}
-                />
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </>
-      );
+    cell: ({ row }) => {
+      return <ActionCell row={row.original} />;
     },
   }),
 ];
 
-interface QueryResult {
-  count: number;
-  rows: Row[];
+interface ActionCellProps {
+  row: Row;
 }
 
-interface OvertimesProps {
-  action: () => Promise<QueryResult>;
-}
+const ActionCell = ({ row }: ActionCellProps) => {
+  const [openUpdateDialog, setOpenUpdateDialog] = React.useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
-export const Overtimes = (props: OvertimesProps) => {
+  const deleteOvertime = useDeleteOvertime();
+  const updateOvertime = useUpdateOvertime();
+
+  return (
+    <>
+      <Dialog open={openUpdateDialog} onOpenChange={setOpenUpdateDialog}>
+        <DialogTrigger
+          render={
+            <Button size={"icon"} variant={"ghost"}>
+              <SquareCheckBig />
+            </Button>
+          }
+        />
+        <DialogContent className={"gap-0"}>
+          <DialogHeader>
+            <DialogTitle>Warnning</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <p className="mb-2">Are you sure you want to update this record?</p>
+          <DialogFooter>
+            <Button
+              onClick={() =>
+                updateOvertime.mutate(row.id, {
+                  onError: (error) => {
+                    toast.add({
+                      description: error.message,
+                      type: "error",
+                    });
+                  },
+                  onSuccess: () => {
+                    setOpenUpdateDialog(false);
+                  },
+                })
+              }
+            >
+              {updateOvertime.isPending ? (
+                <Loader className="animate-spin" />
+              ) : (
+                <Check />
+              )}
+              Confirm
+            </Button>
+            <DialogClose
+              render={
+                <Button variant={"secondary"}>
+                  <X />
+                  Cancel
+                </Button>
+              }
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogTrigger
+          render={
+            <Button size={"icon"} variant={"ghost"}>
+              <Trash />
+            </Button>
+          }
+        />
+        <DialogContent className={"gap-0"}>
+          <DialogHeader>
+            <DialogTitle>Warnning</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <p className="mb-2">Are you sure you want to delete this record?</p>
+          <DialogFooter>
+            <Button
+              onClick={() =>
+                deleteOvertime.mutate(row.id, {
+                  onError: (error) => {
+                    toast.add({
+                      description: error.message,
+                      type: "error",
+                    });
+                  },
+                  onSuccess: () => {
+                    setOpenDeleteDialog(false);
+                  },
+                })
+              }
+            >
+              {deleteOvertime.isPending ? (
+                <Loader className="animate-spin" />
+              ) : (
+                <Check />
+              )}
+              Confirm
+            </Button>
+            <DialogClose
+              render={
+                <Button variant={"secondary"}>
+                  <X />
+                  Cancel
+                </Button>
+              }
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+export const Overtimes = () => {
   "use no memo";
 
   const enabled = useEffectReady();
@@ -196,7 +275,7 @@ export const Overtimes = (props: OvertimesProps) => {
   const query = useQuery({
     queryKey: ["overtimes"],
     queryFn: async () => {
-      const data = await props.action();
+      const data = await queryAction();
 
       return data;
     },
